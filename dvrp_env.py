@@ -21,6 +21,7 @@ from typing import List, Optional
 # ACTION:
 # 0: Wait (Do nothing)
 # 1 Accept the order
+# 2: Reject the order
 # 2: Return to depot
 # 3: Deliver order i (by moving one step towards the respective delivery location)
 
