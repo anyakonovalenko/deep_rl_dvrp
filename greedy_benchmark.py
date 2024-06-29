@@ -17,15 +17,12 @@ set_random_seed(10)
 
 env_my = gym.make("DVRPEnv-v0")
 
-
-# i dont remember of 0 for no order than how it is for order 0,0:
-# I didnt do anything as I assumed that order is 0,0 location low probability
+# I assumed that order is 0,0 location low probability
 
 def greedy_heuristic(env):
     state, done = env.reset(), False
     total_reward = 0
     while not done:
-        print(env.clock)
         closest_order = None
         closest_distance = float('inf')
         if (env.acceptance_decision == 1):
@@ -52,6 +49,7 @@ def greedy_heuristic(env):
                 action = 0
                 state, reward, done, _ = env.step(action)
                 total_reward += reward
+
 
     return total_reward
 

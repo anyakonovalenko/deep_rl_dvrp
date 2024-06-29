@@ -384,19 +384,18 @@ class DVRPEnv(gym.Env):
         self.acceptance_decision = 0
         # Create new orders (changed to create new order)
         self.missed_order_reward = 0
-        for o in range(self.n_orders):
-            if self.o_status[o] == 0:
-                # Flip a coin to create an order
-                try:
-                    df_row = self.test_dataframe.iloc[self.evaluation_order]
-                    o_x, o_y, zone_taken, order_reward, time = df_row.astype(float)
-                except:
-                    time = 0
 
-                if (time < self.clock and time != 0):
-                    print("Attention")
+        if (self.time_file <= self.clock):
+            try:
+                df_row = self.test_dataframe.iloc[self.evaluation_order]
+                o_x, o_y, zone_taken, order_reward, time = df_row.astype(float)
+                self.time_file = time
+            except:
+                self.time_file = 0
 
-                if (time == self.clock):
+        if (self.time_file == self.clock):
+            for o in range(self.n_orders):
+                if self.o_status[o] == 0:
                     self.current_order_id = o
                     self.o_status[o] = 1
                     self.o_time[o] = 0
@@ -406,40 +405,75 @@ class DVRPEnv(gym.Env):
                     self.zones_order[o] = zone_taken
                     self.acceptance_decision = 1
                     self.evaluation_order += 1
-                    # print(self.evaluation_order)
-                    # print(o_x, o_y, time)
-                # if np.random.random(1)[0] < self.order_prob:
-                #     self.current_order_id = o
-                #     # Choose a zone
-                #     zone = np.random.choice(self.num_zones, p=self.order_probs_per_zone)
-                #     o_x, o_y, order_reward = self.__receive_order(zone)
-                #     print(o_x, o_y, order_reward)
-                #     self.o_status[o] = 1
-                #     self.o_time[o] = 0
-                #     self.o_x[o] = o_x
-                #     self.o_y[o] = o_y
-                #     self.reward_per_order[o] = order_reward
-                #     self.zones_order[o] = zone
-                #     self.acceptance_decision = 1
-                #     self.evaluation_order += 1
-                #     print(self.evaluation_order)
-
-                    # ##Evaluation
-                    # self.stats_x.append(o_x)
-                    # self.stats_y.append(o_y)
-                    # self.stats_zone.append(zone+1)
-                    # self.stats_reward.append(order_reward)
-                    # self.stats_clock.append(self.clock)
-
-                    # self.closest_distance_node = abs(self.dr_x - o_x) + abs(self.dr_y - o_y)
-                break
-            # generate missed order
-        if self.o_status.count(2) == self.n_orders:
-            if np.random.random(1)[0] < self.order_prob:
-                zone = np.random.choice(self.num_zones, p=self.order_probs_per_zone)
-                o_x, o_y, order_reward = self.__receive_order(zone)
+                    break
+        elif (self.time_file < self.clock and self.time_file != 0):
                 self.missed_order_reward = order_reward
                 self.reward -= self.missed_order_reward
+                self.evaluation_order += 1
+        # else: In file row time larger then clock or times are the same but there is a queue (next iteration will go to elif)
+
+        # for o in range(self.n_orders):
+        #     if self.o_status[o] == 0:
+        #         # Flip a coin to create an order
+        #         # try:
+        #         #     df_row = self.test_dataframe.iloc[self.evaluation_order]
+        #         #     o_x, o_y, zone_taken, order_reward, time = df_row.astype(float)
+        #         #     self.time_file = time
+        #         # except:
+        #         #     time = 0
+        #
+        #         print('time,clock, inside', time, self.clock)
+        #         if (time < self.clock and time != 0): #missed order when the queue is full
+        #             print('Attention')
+        #
+        #         if (time == self.clock):
+        #             self.current_order_id = o
+        #             self.o_status[o] = 1
+        #             self.o_time[o] = 0
+        #             self.o_x[o] = o_x
+        #             self.o_y[o] = o_y
+        #             self.reward_per_order[o] = order_reward
+        #             self.zones_order[o] = zone_taken
+        #             self.acceptance_decision = 1
+        #             self.evaluation_order += 1
+        #             # print(self.evaluation_order)
+        #             # print(o_x, o_y, time)
+        #         # if np.random.random(1)[0] < self.order_prob:
+        #         #     self.current_order_id = o
+        #         #     # Choose a zone
+        #         #     zone = np.random.choice(self.num_zones, p=self.order_probs_per_zone)
+        #         #     o_x, o_y, order_reward = self.__receive_order(zone)
+        #         #     print(o_x, o_y, order_reward)
+        #         #     self.o_status[o] = 1
+        #         #     self.o_time[o] = 0
+        #         #     self.o_x[o] = o_x
+        #         #     self.o_y[o] = o_y
+        #         #     self.reward_per_order[o] = order_reward
+        #         #     self.zones_order[o] = zone
+        #         #     self.acceptance_decision = 1
+        #         #     self.evaluation_order += 1
+        #         #     print(self.evaluation_order)
+        #
+        #             # ##Evaluation
+        #             # self.stats_x.append(o_x)
+        #             # self.stats_y.append(o_y)
+        #             # self.stats_zone.append(zone+1)
+        #             # self.stats_reward.append(order_reward)
+        #             # self.stats_clock.append(self.clock)
+        #
+        #             # self.closest_distance_node = abs(self.dr_x - o_x) + abs(self.dr_y - o_y)
+        #         break
+        #
+        #
+        #     # generate missed order
+
+        # if self.o_status.count(2) == self.n_orders:
+        #     print('HEEEELOOOOO')
+        #     if np.random.random(1)[0] < self.order_prob:
+        #         zone = np.random.choice(self.num_zones, p=self.order_probs_per_zone)
+        #         o_x, o_y, order_reward = self.__receive_order(zone)
+        #         self.missed_order_reward = order_reward
+        #         self.reward -= self.missed_order_reward
 
     def __receive_order(self, zone):
         i = 0  # prevent infinite loop
@@ -536,8 +570,6 @@ class DVRPEnv(gym.Env):
         return self.action_max
 
     def __place_driver(self):
-        # self.dr_x = np.random.choice([i for i in self.map_range_x], 1)[0]
-        # self.dr_y = np.random.choice([i for i in self.map_range_y], 1)[0]
         self.dr_x = self.depot_location[0]
         self.dr_y = self.depot_location[1]
 
@@ -560,7 +592,7 @@ class DVRPEnv(gym.Env):
                 self.test_dataframe = pd.read_csv(f'instances_test/{self.experiment_index}.csv')
             except:
                 print("No file anymores")
-        self.evaluation_order = 0
+        self.evaluation_order = 0    #index of row with an order
 
         self.__place_driver()
         self.dr_used_capacity = 0
@@ -584,6 +616,7 @@ class DVRPEnv(gym.Env):
         self.dr_left_capacity = self.driver_capacity
         self.closest_distance = 0
         self.closest_distance_node = 0
+        self.time_file = 0 #to store the last time order from the file
 
         return self.__create_state()
 
