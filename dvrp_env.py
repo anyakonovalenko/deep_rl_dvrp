@@ -142,6 +142,10 @@ class DVRPEnv(gym.Env):
         self.generated_orders = 0
         self.current_order_id = -1
 
+
+        #flags
+        self.evaluation_from_file = True
+
         # Order parameters
         self.o_x = []
         self.o_y = []
@@ -388,35 +392,39 @@ class DVRPEnv(gym.Env):
         # Create new orders (changed to create new order)
         self.missed_order_reward = 0
 
-        if (self.time_file <= self.clock):
-            try:
-                df_row = self.test_dataframe.iloc[self.evaluation_order]
-                o_x, o_y, zone_taken, order_reward, time = df_row.astype(float)
-                self.time_file = time
-            except:
-                self.time_file = 0
+        if (self.evaluation_from_file):
 
-        if (self.time_file == self.clock):
-            for o in range(self.n_orders):
-                if self.o_status[o] == 0:
-                    self.current_order_id = o
-                    self.o_status[o] = 1
-                    self.o_time[o] = 0
-                    self.o_x[o] = o_x
-                    self.o_y[o] = o_y
-                    self.reward_per_order[o] = order_reward
-                    self.zones_order[o] = zone_taken
-                    self.acceptance_decision = 1
+            if (self.time_file <= self.clock):
+                try:
+                    df_row = self.test_dataframe.iloc[self.evaluation_order]
+                    o_x, o_y, zone_taken, order_reward, time = df_row.astype(float)
+                    self.time_file = time
+                except:
+                    self.time_file = 0
+
+            if (self.time_file == self.clock):
+                for o in range(self.n_orders):
+                    if self.o_status[o] == 0:
+                        self.current_order_id = o
+                        self.o_status[o] = 1
+                        self.o_time[o] = 0
+                        self.o_x[o] = o_x
+                        self.o_y[o] = o_y
+                        self.reward_per_order[o] = order_reward
+                        self.zones_order[o] = zone_taken
+                        self.acceptance_decision = 1
+                        self.evaluation_order += 1
+                        self._update_statistics(self.o_x[o])
+                        break
+            elif (self.time_file < self.clock and self.time_file != 0):
+                    self.missed_order_reward = order_reward
+                    self._total_rejected_orders += 1
+                    self.reward -= self.missed_order_reward
+                    print('HERE')
                     self.evaluation_order += 1
-                    self._update_statistics(self.o_x[o])
-                    break
-        elif (self.time_file < self.clock and self.time_file != 0):
-                self.missed_order_reward = order_reward
-                self._total_rejected_orders += 1
-                self.reward -= self.missed_order_reward
-                print('HERE')
-                self.evaluation_order += 1
-        # else: In file row time larger then clock or times are the same but there is a queue (next iteration will go to elif)
+            # else: In file row time larger then clock or times are the same but there is a queue (next iteration will go to elif)
+        else:
+            print("Do training or writing into file")
 
         # for o in range(self.n_orders):
         #     if self.o_status[o] == 0:
