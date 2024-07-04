@@ -46,8 +46,8 @@ class DVRPEnv(gym.Env):
             'order_reward_min': (6, 2, 2, 6),
             'order_reward_max': (10, 4, 4, 10),
             'half_norm_scale_reward_per_zone': (0.5, 0.5, 0.5, 0.5),
-            'penalty_per_timestep': 0.1,
-            'penalty_per_move': 0.1,
+            'penalty_per_timestep': 0.1, #instead of 0.1
+            'penalty_per_move': 0.1, #instead of 0.1
             'order_miss_penalty': 50}
 
         for key, val in config_defaults.items():
@@ -275,6 +275,7 @@ class DVRPEnv(gym.Env):
                 if self.o_status[o] >= 2:
                     self.reward = (self.reward - self.reward_per_order[o] * (
                                 self.o_status[o] == 2) / 3)  # remove reward which was given for acceptance
+            print('total_delivered_reward', self._total_delivered_reward, self._total_rejected_orders, self._total_delivered_orders_zone)
 
         self.info['no_late_penalty_reward'] = self.reward
 
@@ -319,16 +320,17 @@ class DVRPEnv(gym.Env):
                 # If order is available and driver is at delivery location, deliver the order
                 if self.o_status[o] == 2 and (self.dr_x == self.o_x[o] and self.dr_y == self.o_y[o]):
                     if self.dr_left_capacity >= 1:
-                        self._update_statistics(self.o_x[o])
                         self.o_delivered[o] = 1
                         if self.o_time[o] <= self.order_promise:
                             self._total_delivered_reward += self.reward_per_order[o]
                             self.reward += 2 * self.reward_per_order[
                                 o] / 3  # Rest of the reward was given in accept and deliver
+                        #TODO improve here code before runnung env
                         self.dr_left_capacity -= 1
                         self.__reset_order(o)
                     else:
                         self.reward -= self.reward_per_order[o] / 6
+                        print('Arrived when empty')
         elif action_type == 'depot':
             if (self.dr_x == self.depot_location[0] and self.dr_y == self.depot_location[1]):
                 self.dr_left_capacity = self.driver_capacity
@@ -375,6 +377,7 @@ class DVRPEnv(gym.Env):
             for o in range(self.n_orders):
                 if self.o_time[o] >= self.order_promise:
                     if self.o_status[o] >= 2:
+                        print('Missed Time Window')
                         self.reward = (self.reward
                                        - self.order_miss_penalty
                                        - self.reward_per_order[o] * (self.o_status[
@@ -405,10 +408,13 @@ class DVRPEnv(gym.Env):
                     self.zones_order[o] = zone_taken
                     self.acceptance_decision = 1
                     self.evaluation_order += 1
+                    self._update_statistics(self.o_x[o])
                     break
         elif (self.time_file < self.clock and self.time_file != 0):
                 self.missed_order_reward = order_reward
+                self._total_rejected_orders += 1
                 self.reward -= self.missed_order_reward
+                print('HERE')
                 self.evaluation_order += 1
         # else: In file row time larger then clock or times are the same but there is a queue (next iteration will go to elif)
 
@@ -589,6 +595,7 @@ class DVRPEnv(gym.Env):
         self.evaluation = True
         if self.evaluation:
             try:
+                print('file_number', self.experiment_index)
                 self.test_dataframe = pd.read_csv(f'instances_test/{self.experiment_index}.csv')
             except:
                 print("No file anymores")

@@ -11,9 +11,11 @@ def smooth_data(data, window_size):
     smoothed_data = np.convolve(padded_data, window, mode='same')[padding_size:-padding_size]
     return smoothed_data
 
+
+# 'csv_files/PPO_28_1h.csv' one hot second experiment
 # csv_path = ['csv_files/PPO_7.csv', 'csv_files/PPO_8.csv', 'csv_files/PPO_9.csv', 'csv_files/PPO_10.csv', 'csv_files/PPO_11.csv', 'csv_files/PPO_12.csv']
-csv_path = ['csv_files/PPO_10.csv', 'csv_files/PPO_15.csv', 'csv_files/PPO_28_1h.csv']
-tags = ['basic state', 'first experiment', 'second sxperiment']
+csv_path = ['csv_files/PPO_1.csv', 'csv_files/PPO_10.csv']
+tags = ['location', 'basic state']
 
 
 matplotlib.use('TkAgg')

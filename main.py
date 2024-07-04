@@ -167,7 +167,7 @@ env_my.training = False
 env_my.norm_reward = False
 model = MaskablePPO.load(f"sc_9_b_13_05-27_09-41", env = env_my)
 
-mean_reward, std_reward = evaluate_policy(model, env_my, n_eval_episodes=1000)
+mean_reward, std_reward = evaluate_policy(model, env_my, n_eval_episodes=1)
 print(f"mean_reward={mean_reward:.2f} +/- {std_reward}")
 
 

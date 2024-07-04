@@ -27,12 +27,14 @@ def greedy_heuristic(env):
         closest_distance = float('inf')
         if (env.acceptance_decision == 1):
             action = 1
+            # print('acceptance decision')
             state, reward, done, _ = env.step(action)
             total_reward += reward
         else:
             if (env.o_status.count(2) >= 1):
                 if (env.dr_left_capacity == 0):
                     action = 3
+                    # print('Move to depot')
                     state, reward, done, _ = env.step(action)
                     total_reward += reward
                 else:
@@ -43,6 +45,7 @@ def greedy_heuristic(env):
                                 closest_order = i
                                 closest_distance = distance
                     action = 4 + closest_order
+                    # print('Move to the order', closest_order)
                     state, reward, done, _ = env.step(action)
                     total_reward += reward
             else:
@@ -53,4 +56,4 @@ def greedy_heuristic(env):
 
     return total_reward
 
-greedy_heuristic(env_my)
+print(greedy_heuristic(env_my))
