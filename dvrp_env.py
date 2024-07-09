@@ -326,6 +326,7 @@ class DVRPEnv(gym.Env):
                     if self.dr_left_capacity >= 1:
                         self.o_delivered[o] = 1
                         if self.o_time[o] <= self.order_promise:
+                            self._update_statistics(self.o_x[o])
                             self._total_delivered_reward += self.reward_per_order[o]
                             self.reward += 2 * self.reward_per_order[
                                 o] / 3  # Rest of the reward was given in accept and deliver
@@ -414,7 +415,6 @@ class DVRPEnv(gym.Env):
                         self.zones_order[o] = zone_taken
                         self.acceptance_decision = 1
                         self.evaluation_order += 1
-                        self._update_statistics(self.o_x[o])
                         break
             elif (self.time_file < self.clock and self.time_file != 0):
                     self.missed_order_reward = order_reward
