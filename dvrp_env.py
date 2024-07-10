@@ -142,6 +142,9 @@ class DVRPEnv(gym.Env):
         self.generated_orders = 0
         self.current_order_id = -1
 
+        self.last_delivered_x = -1
+        self.last_delivered_y = -1
+
 
         #flags
         self.evaluation_from_file = True
@@ -212,6 +215,7 @@ class DVRPEnv(gym.Env):
             "action_mask": np.array([1] * 3 + [1] * self.n_orders),
             "real_obs": orig_obs,
         }
+        print(self.acceptance_decision, self.o_x, self.o_y, self.o_status, self.o_time)
         return orig_obs, rew, done, info
 
     def __orig_step(self, action):
@@ -261,6 +265,8 @@ class DVRPEnv(gym.Env):
             self.clock += 1
         if self.clock >= self.episode_length:
             done = True
+            print('accepted', self._total_accepted_orders)
+            print('rejected', self._total_rejected_orders)
 
             ##EVALUATION
             # df = pd.DataFrame({"X": self.stats_x, "Y": self.stats_y, "Zone": self.stats_zone, "Reward": self.stats_reward, "Time": self.stats_clock})
@@ -324,7 +330,10 @@ class DVRPEnv(gym.Env):
                 # If order is available and driver is at delivery location, deliver the order
                 if self.o_status[o] == 2 and (self.dr_x == self.o_x[o] and self.dr_y == self.o_y[o]):
                     if self.dr_left_capacity >= 1:
+                        print('Order_delivered', self.dr_x, self.dr_y, self.o_time[o])
                         self.o_delivered[o] = 1
+                        self.last_delivered_x = self.dr_x
+                        self.last_delivered_y = self.dr_y
                         if self.o_time[o] <= self.order_promise:
                             self._update_statistics(self.o_x[o])
                             self._total_delivered_reward += self.reward_per_order[o]
@@ -382,7 +391,7 @@ class DVRPEnv(gym.Env):
             for o in range(self.n_orders):
                 if self.o_time[o] >= self.order_promise:
                     if self.o_status[o] >= 2:
-                        print('Missed Time Window')
+                        print('Missed Time Window', self.o_time[o], self.o_x[o], self.o_y[o], self.o_status[o])
                         self.reward = (self.reward
                                        - self.order_miss_penalty
                                        - self.reward_per_order[o] * (self.o_status[
@@ -420,7 +429,7 @@ class DVRPEnv(gym.Env):
                     self.missed_order_reward = order_reward
                     self._total_rejected_orders += 1
                     self.reward -= self.missed_order_reward
-                    print('HERE')
+                    print('<Missed order>')
                     self.evaluation_order += 1
             # else: In file row time larger then clock or times are the same but there is a queue (next iteration will go to elif)
         else:
