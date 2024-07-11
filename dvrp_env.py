@@ -215,7 +215,7 @@ class DVRPEnv(gym.Env):
             "action_mask": np.array([1] * 3 + [1] * self.n_orders),
             "real_obs": orig_obs,
         }
-        print(self.acceptance_decision, self.o_x, self.o_y, self.o_status, self.o_time)
+        # print(self.acceptance_decision, self.o_x, self.o_y, self.o_status, self.o_time)
         return orig_obs, rew, done, info
 
     def __orig_step(self, action):
