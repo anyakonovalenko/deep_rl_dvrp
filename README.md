@@ -18,30 +18,52 @@ This project formulates the DVRP as a sequential decision-making problem and app
 ## Project Structure
 
 ```
-├── dvrp_env.py                 # Main DVRP environment implementation (Gym-based)
-├── main.py                      # Training and evaluation script for RL agents
-├── greedy_benchmark.py          # Greedy heuristic baseline for comparison
-├── action_spaces.py             # Action space definitions
-├── grid_world_env.py            # Alternative grid-based environment
-├── settings.py                  # Configuration settings
-├── tb_data_processing.py        # TensorBoard data processing and visualization
-├── draw_graphs.py               # Visualization utilities
-├── test.py                      # Testing utilities
-├── utils/
-│   ├── const.py                # Constants (colors, cell sizes)
-│   ├── utils.py                # General utility functions
-│   ├── draw.py                 # Drawing and rendering functions
-│   ├── sim_annel.py            # Simulated annealing utilities
-│   └── cheapest_insertion.py   # Cheapest insertion heuristic
-├── csv_files/                  # Training metrics exported from TensorBoard
-├── stats/                      # Saved normalization statistics
-├── evaluation_rs/              # Evaluation results and analysis
-└── sprint_*/                   # Experimental runs and models
+.
+├── src/                        # Core production code
+│   ├── dvrp_env.py            # Main DVRP environment implementation (Gym-based)
+│   ├── main.py                # Training and evaluation script for RL agents
+│   ├── greedy_benchmark.py    # Greedy heuristic baseline for comparison
+│   ├── action_spaces.py       # Action space definitions
+│   ├── grid_world_env.py      # Alternative grid-based environment
+│   ├── settings.py            # Configuration settings
+│   ├── tb_data_processing.py  # TensorBoard data processing and visualization
+│   ├── draw_graphs.py         # Visualization utilities
+│   ├── test.py                # Testing utilities
+│   └── utils/
+│       ├── const.py           # Constants (colors, cell sizes)
+│       ├── utils.py           # General utility functions
+│       ├── draw.py            # Drawing and rendering functions
+│       ├── sim_annel.py       # Simulated annealing utilities
+│       ├── cheapest_insertion.py # Cheapest insertion heuristic
+│       └── img/               # Image assets
+├── experiments/               # Experimental runs and archived models
+│   ├── sprint_1/             # First round experiments
+│   ├── sprint_2/             # Second round experiments
+│   ├── a2c_cartpole/         # CartPole learning experiments
+│   └── archived/             # Archived model checkpoints (.zip files)
+├── models/                    # Trained models
+│   ├── best/                 # Best performing models
+│   └── legacy/               # Legacy version backups
+├── data/                      # Input data and instances
+│   ├── instances/            # Test instances
+│   │   ├── test/            # Test data instances
+│   │   ├── sc5_b_5/         # Scenario-specific instances
+│   │   └── sc5_b_6/         # Scenario-specific instances
+│   └── evaluation/           # Evaluation results
+├── results/                   # Analysis results
+│   ├── csv/                  # Training metrics exported from TensorBoard
+│   ├── stats/                # Saved normalization statistics
+│   ├── logs/                 # Evaluation logs
+│   └── analysis/             # Statistical analysis (t-tests)
+├── docs/                      # Documentation
+├── README.md                  # Project documentation
+├── environment.yaml           # Conda environment
+└── .gitignore                # Git ignore rules
 ```
 
 ## Environment Details
 
-### DVRPEnv (dvrp_env.py)
+### DVRPEnv (src/dvrp_env.py)
 
 The custom Gym environment implements the DVRP with the following features:
 
@@ -94,7 +116,7 @@ from gym.envs.registration import register
 # Register the environment
 register(
     id='DVRPEnv-v0',
-    entry_point='dvrp_env:DVRPEnv',
+    entry_point='src.dvrp_env:DVRPEnv',
 )
 
 # Create vectorized environment with normalization
@@ -111,7 +133,7 @@ policy_kwargs = dict(
 model = MaskablePPO(
     "MaskableActorCriticPolicy",
     env,
-    tensorboard_log="./logs/",
+    tensorboard_log="./experiments/",
     verbose=1,
     batch_size=128,
     learning_rate=0.0004,
@@ -142,8 +164,8 @@ print(f"Mean Reward: {mean_reward:.2f} ± {std_reward}")
 
 ### Greedy Baseline Comparison
 
-```python
-python greedy_benchmark.py
+```bash
+python -m src.greedy_benchmark
 ```
 
 This script runs the greedy heuristic baseline (evaluates 1000 episodes) and outputs average reward for comparison with RL approaches.
@@ -222,20 +244,21 @@ pip install stable-baselines3 sb3-contrib gym torch pandas numpy scipy matplotli
 ## Evaluation and Analysis
 
 ### CSV Data Processing
-```python
-python tb_data_processing.py
+```bash
+python -m src.tb_data_processing
 ```
 
 Generates smoothed learning curves comparing different state-space configurations.
 
 ### Output Files
-- `evaluation_rs/`: Contains evaluation results across 1000 random seeds
-- `csv_files/`: TensorBoard metrics exported to CSV
-- `logs/`: TensorBoard event files for visualization
+- `data/evaluation/`: Contains evaluation results across 1000 random seeds
+- `results/csv/`: TensorBoard metrics exported to CSV
+- `results/logs/`: TensorBoard event files for visualization
+- `results/stats/`: Saved normalization statistics (.pkl files)
 
 ## Running Experiments
 
-The `main.py` script includes extensive experiment configuration through comments documenting all 50+ experimental configurations tested, including:
+The `src/main.py` script includes extensive experiment configuration through comments documenting all 50+ experimental configurations tested, including:
 - Parameter variations (network sizes, learning rates)
 - State-space modifications
 - Random seed studies
@@ -251,7 +274,7 @@ The `main.py` script includes extensive experiment configuration through comment
 
 ## Benchmark Comparisons
 
-The greedy heuristic (`greedy_benchmark.py`) serves as a baseline. It:
+The greedy heuristic (`src/greedy_benchmark.py`) serves as a baseline. It:
 - Uses a "closest-order-first" strategy with time-window consideration
 - Validates feasibility before accepting orders
 - Returns to depot when capacity reached

@@ -1,1 +1,24 @@
-/a2c_cartpole_tensorboard/
+# Experiments and models
+experiments/
+models/
+data/instances/
+
+# Results
+results/stats/*.pkl
+results/logs/
+results/analysis/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Excel temp files
+~$*.xlsx
+
+# OS files
+.DS_Store
+.idea/
+.claude/
