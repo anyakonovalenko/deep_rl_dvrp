@@ -99,6 +99,22 @@ from stable_baselines3 import PPO
 #sc_6_b_5 with normalization wit locations and closest location, rs = 7, 128 128, n = 10, p = 25 PP04
 #sc_6_b_6 with normalization wit locations and closest location, rs = 7, 128 128, n = 10, p = 25 PP04
 
+#sc_8_b_1 with normalization wit locations, one hot encoding rs = 6, 128 128, n = 10, p = 25 PP015
+#sc_8_b_2 with normalization wit locations,grid map,  rs = 6, 128 128, n = 10, p = 25 PP016
+#sc_8_b_2 with normalization wit locations,ratio reward/time_left,  rs = 6, 128 128, n = 10, p = 25 PP017
+#sc_8_b_3 with normalization wit locations,ratio reward/time_left without simple rewards,  rs = 6, 128 128, n = 10, p = 25 PP018
+#sc_8_b_4 with normalization wit locations,ratio driver, ratio time,  rs = 6, 128 128, n = 10, p = 25 PP019
+#sc_8_b_4 with normalization wit locations,ratio driver, usual driver capacity, usual time,  rs = 6, 128 128, n = 10, p = 25 PP020, [self.dr_left_capacity/self.driver_capacity] + [self.dr_left_capacity] + [self.clock]
+#sc_8_b_4 with normalization wit locations,distances to order 1,2 order statuses,  rs = 6, 128 128, n = 10, p = 25 PP021
+#sc_8_b_5 with normalization wit locations,ratio capacity/queue_order,  rs = 6, 128 128, n = 10, p = 25 PP022
+#sc_8_b_6 with normalization wit locations,combine ratio capacity/queue_order, one-hot-encoding, distances,  rs = 6, 128 128, n = 10, p = 25 PP023
+#sc_8_b_7 with normalization wit locations,combine ratio capacity/queue_order, reward,  one-hot-encoding, distances,  rs = 6, 128 128, n = 10, p = 25 PP024
+
+#sc_9_b_7 with normalization wit locations,combine ratio capacity/queue_order, one-hot-encoding, distances,  rs = 7, 128 128, n = 10, p = 25 PP025
+#sc_9_b_8 with normalization wit locations,combine ratio capacity/queue_order, one-hot-encoding, distances,  rs = 1, 128 128, n = 10, p = 25 PP026
+#sc_9_b_10 with normalization wit locations,combine ratio capacity/queue_order, one-hot-encoding, distances,  rs = 5, 128 128, n = 10, p = 25 PP027 (not finised)
+#sc_9_b_11 with normalization wit locations,combine ratio capacity/queue_order, one-hot-encoding, distances,  rs = 4, 128 128, n = 10, p = 25 PP028
+
 #remove locations
 #give 2 regions with large reward far away
 #image#
@@ -111,51 +127,48 @@ register(
     id='DVRPEnv-v0',
     entry_point='dvrp_env:DVRPEnv', #your_env_folder.envs:NameOfYourEnv
 )
-
-# env = make_vec_env("DVRPEnv-v0", n_envs=4, seed=7, vec_env_cls=DummyVecEnv)
+#
+# env = make_vec_env("DVRPEnv-v0", n_envs=4, seed=4, vec_env_cls=DummyVecEnv)
 # env = VecNormalize(env, training=True, norm_obs=True, clip_obs=481., norm_reward = True, clip_reward=70.)
-set_random_seed(7)
+set_random_seed(10)
+
+
+policy_kwargs = dict(activation_fn=th.nn.ReLU,
+                     net_arch=dict(pi=[128, 128], vf=[128, 128]))
 #
 #
-# policy_kwargs = dict(activation_fn=th.nn.ReLU,
-#                      net_arch=dict(pi=[128, 128], vf=[128, 128]))
-#
-# eval_callback = MaskableEvalCallback(env, best_model_save_path=f"./best_sc_4_b_10_{now.strftime('%m-%d_%H-%M')}/",
-#                              log_path='./logs/', eval_freq=100000, n_eval_episodes=100,
-#                              deterministic=True, render=False, use_masking=True)
-#
-#
-path = "./sprint_1/"
-#
-# model = MaskablePPO(MaskableActorCriticPolicy, env, verbose=1, tensorboard_log=path, batch_size=128, learning_rate=0.0004, policy_kwargs=policy_kwargs)
+path = "./sprint_2/"
+
+# model = MaskablePPO(MaskableActorCriticPolicy, env, tensorboard_log=path, verbose=1, batch_size=128, learning_rate=0.0004, policy_kwargs=policy_kwargs)
 # model.learn(total_timesteps=110000000, log_interval=10, progress_bar=True) #
-#
-#
+
+
 log_dir = "./stats/"
-# model.save(f"sc_6_b_5_{now.strftime('%m-%d_%H-%M')}")
-stats_path = os.path.join(log_dir, "vec_normalize_sc_5_b_9_03-29_21-16.pkl")
-# stats_path = os.path.join(log_dir, f"vec_normalize_sc_6_b_5_{now.strftime('%m-%d_%H-%M')}.pkl")
+# model.save(f"sc_9_b_11_{now.strftime('%m-%d_%H-%M')}")
+stats_path = os.path.join(log_dir, f"vec_normalize_sc_9_b_13_05-27_09-41.pkl")
 # env.save(stats_path)
 
-env_my = make_vec_env("DVRPEnv-v0", n_envs=4, seed=1, vec_env_cls=DummyVecEnv)
-env_my = VecNormalize.load(stats_path, env_my)
-model = MaskablePPO.load(f"sc_5_b_9_03-29_21-16", env = env_my)
-model.learn(total_timesteps=100000000, log_interval=10, reset_num_timesteps=False)
-model.save(f"sc_5_b_9_{now.strftime('%m-%d_%H-%M')}")
-env_my.save(os.path.join(log_dir, f"vec_normalize_sc_5_b_9_{now.strftime('%m-%d_%H-%M')}.pkl"))
+#train more
+# env_my = make_vec_env("DVRPEnv-v0", n_envs=4, seed=1, vec_env_cls=DummyVecEnv)
+# env_my = VecNormalize.load(stats_path, env_my)
+# model = MaskablePPO.load(f"sc_5_b_9_03-29_21-16", env = env_my)
+# model.learn(total_timesteps=100000000, log_interval=10, reset_num_timesteps=False)
+# model.save(f"sc_5_b_9_{now.strftime('%m-%d_%H-%M')}")
+# env_my.save(os.path.join(log_dir, f"vec_normalize_sc_5_b_9_{now.strftime('%m-%d_%H-%M')}.pkl"))
 
 
 
 #EVALUATION
 #
-# env_my = env_my = DummyVecEnv([lambda: env_my])
-# env_my = VecNormalize.load(stats_path, env_my)
-# env_my.training = False
-# env_my.norm_reward = False
-# model = MaskablePPO.load(f"sc_6_b_5_{now.strftime('%m-%d_%H-%M')}", env = env)
-#
-# mean_reward, std_reward = evaluate_policy(model, env_my, n_eval_episodes=100)
-# print(f"mean_reward={mean_reward:.2f} +/- {std_reward}")
+env_my = gym.make("DVRPEnv-v0")
+env_my = DummyVecEnv([lambda: env_my])
+env_my = VecNormalize.load(stats_path, env_my)
+env_my.training = False
+env_my.norm_reward = False
+model = MaskablePPO.load(f"sc_9_b_13_05-27_09-41", env = env_my)
+
+mean_reward, std_reward = evaluate_policy(model, env_my, n_eval_episodes=1000)
+print(f"mean_reward={mean_reward:.2f} +/- {std_reward}")
 
 
 

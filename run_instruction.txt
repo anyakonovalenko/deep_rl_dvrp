@@ -1,0 +1,3 @@
+To open tensorboard:
+-conda activate /Users/anko/miniforge3/envs/rl-solver
+-tensorboard --logdir=/Users/anko/Development/Imperial/stable-baselines-dvrp/sprint_2
