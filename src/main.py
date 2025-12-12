@@ -2,7 +2,6 @@ import os
 import stable_baselines3
 import datetime
 import gym
-import torch
 from stable_baselines3.common.env_util import make_vec_env
 from gym.envs.registration import register
 # from sb3_contrib.common.wrappers import ActionMasker
