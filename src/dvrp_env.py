@@ -1,8 +1,6 @@
-# from .multiagentenv import MultiAgentEnv
 import gym
 import pandas as pd
 from gym import Env, spaces
-import json
 import random
 import os
 import numpy as np
@@ -15,18 +13,15 @@ from src.utils.cheapest_insertion import *
 from scipy.stats import truncnorm
 from typing import List, Optional
 
-
-# without reward per order
-# for now without depot capacity
-# ACTION:
-# 0: Wait (Do nothing)
-# 1 Accept the order
-# 2: Reject the order
-# 2: Return to depot
-# 3: Deliver order i (by moving one step towards the respective delivery location)
+# ACTION SPACE:
+# 0: Wait (do nothing)
+# 1: Accept the current order
+# 2: Reject the current order
+# 3: Return to depot
+# 4+n: Deliver order i (move toward delivery location)
 
 # ORDER STATUS:
-# 0: InACtive (# 2: Rejected, Delivered)
+# 0: Inactive
 # 1: Available
 # 2: Accepted
 
@@ -46,8 +41,8 @@ class DVRPEnv(gym.Env):
             'order_reward_min': (6, 2, 2, 6),
             'order_reward_max': (10, 4, 4, 10),
             'half_norm_scale_reward_per_zone': (0.5, 0.5, 0.5, 0.5),
-            'penalty_per_timestep': 0.1, #instead of 0.1
-            'penalty_per_move': 0.1, #instead of 0.1
+            'penalty_per_timestep': 0.1,
+            'penalty_per_move': 0.1,
             'order_miss_penalty': 0}
 
         for key, val in config_defaults.items():

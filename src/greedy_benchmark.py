@@ -1,17 +1,12 @@
-import datetime
 import gym
+import numpy as np
 from gym.envs.registration import register
 from stable_baselines3.common.utils import set_random_seed
 from src.utils.utils import vrp_action_go_from_a_to_b
 
-now = datetime.datetime.now()
-import torch as th
-import random
-import numpy as np
-
 register(
     id='DVRPEnv-v0',
-    entry_point='src.dvrp_env:DVRPEnv',  # your_env_folder.envs:NameOfYourEnv
+    entry_point='src.dvrp_env:DVRPEnv',
 )
 
 set_random_seed(10)
@@ -19,18 +14,16 @@ set_random_seed(10)
 env_my = gym.make("DVRPEnv-v0")
 
 
-# I assumed that order is 0,0 location low probability
-# o_time is from 0 to time_max increasing each timestep
 def can_deliver(dr_x, dr_y, o_x, o_y, o_status, o_time, order_promised, dr_left_capacity, depot, moving_to_the_order):
+    """Check if an order can be delivered within its time window.
+
+    Uses a greedy approach to validate feasibility before accepting an order.
+    """
     dr_left_capacity_local = dr_left_capacity
     arrived_index = o_status.index(1)
     new_x, new_y, new_o_time = o_x[arrived_index], o_y[arrived_index], 0
 
     current_x, current_y = dr_x, dr_y
-    first = 0
-
-    # if (moving_to_the_order != -1 and first == 1):
-    #     closest_index = sorted_indices[moving_to_the_order]
     timer = 0
     visited = set([idx for idx, status in enumerate(o_status) if status == 0])
 
