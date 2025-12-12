@@ -34,8 +34,6 @@ def can_deliver(dr_x, dr_y, o_x, o_y, o_status, o_time, order_promised, dr_left_
     timer = 0
     visited = set([idx for idx, status in enumerate(o_status) if status == 0])
 
-    if int(new_x) == 0 and int(new_y) == 9:
-        print('gotcha')
 
     while moving_to_the_order != -1 and ((current_x != o_x[moving_to_the_order]) or (current_y != o_y[moving_to_the_order])):
         step = vrp_action_go_from_a_to_b((current_x, current_y), (o_x[moving_to_the_order], o_y[moving_to_the_order]))
@@ -49,8 +47,6 @@ def can_deliver(dr_x, dr_y, o_x, o_y, o_status, o_time, order_promised, dr_left_
             current_x += 1
         timer += 1
         if current_x == new_x and current_y == new_y:
-            print(dr_x, dr_y, o_x[moving_to_the_order], o_y[moving_to_the_order])
-            print('how often', moving_to_the_order, new_x, new_y, dr_left_capacity_local)
             dr_left_capacity_local -= 1
             visited.add(arrived_index)
 
@@ -59,7 +55,6 @@ def can_deliver(dr_x, dr_y, o_x, o_y, o_status, o_time, order_promised, dr_left_
         dr_left_capacity_local -= 1
 
     if dr_left_capacity_local < 0:
-        print('rejected from first route')
         return False
     if dr_left_capacity_local == 0:
         timer += (abs(current_x - depot[0]) + abs(current_y - depot[1])) + 1
@@ -83,7 +78,6 @@ def can_deliver(dr_x, dr_y, o_x, o_y, o_status, o_time, order_promised, dr_left_
         dr_left_capacity_local -= 1
 
         if timer >= (order_promised - o_time[closest_index]):
-            print('Rejected from heuristic', new_x, new_y)
             return False
 
         if dr_left_capacity_local < 1:
@@ -100,7 +94,6 @@ def can_deliver(dr_x, dr_y, o_x, o_y, o_status, o_time, order_promised, dr_left_
 
         # Mark the node as visited
         visited.add(closest_index)
-    print('Accepted from heuristic', new_x, new_y, new_o_time)
     return True
 
 
@@ -125,7 +118,6 @@ def greedy_heuristic(env):
             if env.o_status.count(2) >= 1:
                 if env.dr_left_capacity == 0:
                     action = 3
-                    print('Move to depot')
                     print(env.dr_x, env.dr_y)
                     state, reward, done, _ = env.step(action)
                     total_reward += reward
@@ -146,17 +138,14 @@ def greedy_heuristic(env):
                                 elif distance == closest_distance and highest_time < env.o_time[i]:
                                     highest_time = env.o_time[i]
                                     moving_to_the_order = i
-                    print('moving to the order', moving_to_the_order)
 
                     action = 4 + moving_to_the_order
-                    print(env.dr_x, env.dr_y)
                     # print('move to order', moving_to_the_order, closest_ord_coordinates_x, closest_ord_coordinates_y,
                     #       env.dr_x, env.dr_y)
                     state, reward, done, _ = env.step(action)
                     total_reward += reward
 
                     if (moving_to_the_order >= 0) and env.o_status[moving_to_the_order] != 2:
-                        print('delivered?')
                         moving_to_the_order = -1
             else:
                 # print('test')
@@ -167,5 +156,10 @@ def greedy_heuristic(env):
     # print(r)
     return total_reward
 
+rewards = np.array([])
+for i in range(1000):
+    rewards = np.append(rewards, greedy_heuristic(env_my))
 
-print(greedy_heuristic(env_my))
+print(len(rewards), np.average(rewards))
+
+

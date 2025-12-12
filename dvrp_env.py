@@ -48,7 +48,7 @@ class DVRPEnv(gym.Env):
             'half_norm_scale_reward_per_zone': (0.5, 0.5, 0.5, 0.5),
             'penalty_per_timestep': 0.1, #instead of 0.1
             'penalty_per_move': 0.1, #instead of 0.1
-            'order_miss_penalty': 50}
+            'order_miss_penalty': 0}
 
         for key, val in config_defaults.items():
             val = env_config.get(key, val)  # Override defaults with constructor parameters
@@ -265,8 +265,8 @@ class DVRPEnv(gym.Env):
             self.clock += 1
         if self.clock >= self.episode_length:
             done = True
-            print('accepted', self._total_accepted_orders)
-            print('rejected', self._total_rejected_orders)
+            # print('accepted', self._total_accepted_orders)
+            # print('rejected', self._total_rejected_orders)
 
             ##EVALUATION
             # df = pd.DataFrame({"X": self.stats_x, "Y": self.stats_y, "Zone": self.stats_zone, "Reward": self.stats_reward, "Time": self.stats_clock})
@@ -285,7 +285,7 @@ class DVRPEnv(gym.Env):
                 if self.o_status[o] >= 2:
                     self.reward = (self.reward - self.reward_per_order[o] * (
                                 self.o_status[o] == 2) / 3)  # remove reward which was given for acceptance
-            print('total_delivered_reward', self._total_delivered_reward, self._total_rejected_orders, self._total_delivered_orders_zone)
+            # print('total_delivered_reward', self._total_delivered_reward, self._total_rejected_orders, self._total_delivered_orders_zone)
 
         self.info['no_late_penalty_reward'] = self.reward
 
@@ -330,7 +330,7 @@ class DVRPEnv(gym.Env):
                 # If order is available and driver is at delivery location, deliver the order
                 if self.o_status[o] == 2 and (self.dr_x == self.o_x[o] and self.dr_y == self.o_y[o]):
                     if self.dr_left_capacity >= 1:
-                        print('Order_delivered', self.dr_x, self.dr_y, self.o_time[o])
+                        # print('Order_delivered', self.dr_x, self.dr_y, self.o_time[o])
                         self.o_delivered[o] = 1
                         self.last_delivered_x = self.dr_x
                         self.last_delivered_y = self.dr_y
