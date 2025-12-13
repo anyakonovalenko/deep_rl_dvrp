@@ -284,7 +284,6 @@ The greedy heuristic (`src/greedy_benchmark.py`) serves as a baseline. It:
 
 This implementation supports the paper: *"Optimizing a Dynamic Vehicle Routing Problem with Deep Reinforcement Learning: Analyzing State-Space Components"*
 
-Research conducted at Imperial College London
 
 ## License
 
