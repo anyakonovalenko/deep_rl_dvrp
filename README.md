@@ -2,6 +2,13 @@
 
 This repository contains the implementation of a Deep Reinforcement Learning approach to solve the Dynamic Vehicle Routing Problem (DVRP). The research systematically investigates how different state-space components impact reinforcement learning performance.
 
+## Paper Citation
+
+This implementation supports the paper: *"Optimizing a Dynamic Vehicle Routing Problem with Deep Reinforcement Learning: Analyzing State-Space Components"*
+
+Konovalenko, A.; Hvattum, L.M. Optimizing a Dynamic Vehicle Routing Problem with Deep Reinforcement Learning: Analyzing State-Space Components. Logistics 2024, 8, 96. https://doi.org/10.3390/logistics8040096
+
+
 ## Overview
 
 The Dynamic Vehicle Routing Problem is a complex optimization problem crucial for real-world applications like last-mile delivery. Unlike static VRP, the DVRP requires agents to make real-time decisions about accepting or rejecting dynamically arriving customer requests while optimizing total delivery performance.
@@ -279,10 +286,6 @@ The greedy heuristic (`src/greedy_benchmark.py`) serves as a baseline. It:
 - Validates feasibility before accepting orders
 - Returns to depot when capacity reached
 - Provides a simple comparison point for RL performance gains
-
-## Paper Citation
-
-This implementation supports the paper: *"Optimizing a Dynamic Vehicle Routing Problem with Deep Reinforcement Learning: Analyzing State-Space Components"*
 
 
 ## License
